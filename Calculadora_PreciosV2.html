@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Precios para Emprendedores</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0a1a2a; /* Azul marino más fuerte */
+            --secondary-color: #152f4a;
+            --accent-color: #00bcd4;
+            --light-color: #e8eaf6;
+            --dark-color: #0d0d1a;
+        }
+        
+        body {
+            background-color: var(--primary-color);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 50px;
+            min-height: 100vh;
+        }
+        
+        .card {
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+            font-weight: bold;
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            border: none;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0097a7;
+        }
+        
+        .btn-danger {
+            background-color: #e53935;
+            border: none;
+        }
+        
+        .btn-success {
+            background-color: #43a047;
+            border: none;
+        }
+        
+        .btn-warning {
+            background-color: #ff9800;
+            border: none;
+            color: white;
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--accent-color);
+        }
+        
+        .table {
+            background-color: white;
+            color: var(--dark-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+        
+        .inspiration-text {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .calculator-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .calculator-display {
+            background-color: white;
+            color: var(--dark-color);
+            padding: 10px;
+            text-align: right;
+            font-size: 1.5rem;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            height: 60px;
+            overflow: hidden;
+        }
+        
+        .calculator-btn {
+            width: 100%;
+            height: 50px;
+            font-size: 1.2rem;
+            margin: 2px 0;
+        }
+        
+        .close-calculator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .current-time {
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .result-container {
+            background-color: rgba(0, 188, 212, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .result-label {
+            font-weight: bold;
+        }
+        
+        .result-value {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        @media (max-width: 768px) {
+            .inspiration-text {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-4">
+            <div class="col-12">
+                <h1 class="text-center animate__animated animate__fadeInDown">💰 Calculadora de Precios</h1>
+                <p class="inspiration-text animate__animated animate__fadeIn">"El querer es poder"</p>
+                
+                <div class="current-time animate__animated animate__fadeIn">
+                    <i class="fas fa-clock"></i> <span id="current-time"></span>
+                </div>
+                
+                <div class="card animate__animated animate__fadeIn">
+                    <div class="card-header">
+                        <i class="fas fa-calculator"></i> Calculadora de Precios
+                    </div>
+                    <div class="card-body">
+                        <form id="price-form">
+                            <div class="mb-3">
+                                <label for="product-name" class="form-label">🛍️ Concepto/Nombre del Producto</label>
+                                <input type="text" class="form-control" id="product-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="base-cost" class="form-label">💵 Costo Base del Producto</label>
+                                <input type="number" step="0.01" class="form-control" id="base-cost" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="profit-margin" class="form-label">📈 Margen de Ganancia Deseado (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="profit-margin" required>
+                            </div>
+                            
+                            <!-- Resultados en tiempo real -->
+                            <div class="result-container animate__animated animate__fadeIn" id="results-container" style="display: none;">
+                                <div class="result-item">
+                                    <span class="result-label">Precio Sugerido:</span>
+                                    <span class="result-value" id="suggested-price">$0.00</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Ganancia Monetaria:</span>
+                                    <span class="result-value" id="profit-amount">$0.00</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">% sobre Precio Final:</span>
+                                    <span class="result-value" id="profit-percentage">0%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                <button type="button" class="btn btn-warning me-md-2" id="clear-fields">
+                                    <i class="fas fa-broom"></i> Limpiar Campos
+                                </button>
+                                <button type="button" class="btn btn-secondary me-md-2" id="calculator-btn">
+                                    <i class="fas fa-calculator"></i> Calculadora Manual
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="calculate-btn">
+                                    <i class="fas fa-save"></i> Guardar Cálculo
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card animate__animated animate__fadeIn">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i> Historial de Cálculos
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+                            <button class="btn btn-success me-md-2" id="export-pdf">
+                                <i class="fas fa-file-pdf"></i> Exportar a PDF
+                            </button>
+                            <button class="btn btn-success me-md-2" id="export-excel">
+                                <i class="fas fa-file-excel"></i> Exportar a Excel
+                            </button>
+                            <button class="btn btn-danger" id="clear-history">
+                                <i class="fas fa-trash"></i> Limpiar Historial
+                            </button>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Costo Base</th>
+                                        <th>Margen (%)</th>
+                                        <th>Precio Sugerido</th>
+                                        <th>Ganancia</th>
+                                        <th>% sobre Precio</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-body">
+                                    <!-- Los datos se cargarán aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calculadora Manual -->
+    <div class="calculator-container" id="calculator-container">
+        <button class="close-calculator" id="close-calculator">&times;</button>
+        <div class="calculator-display" id="calculator-display">0</div>
+        <div class="row">
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('7')">7</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('8')">8</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('9')">9</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-danger calculator-btn" onclick="clearCalculator()">C</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('4')">4</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('5')">5</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('6')">6</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-primary calculator-btn" onclick="calculatorInput('+')">+</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('1')">1</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('2')">2</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('3')">3</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-primary calculator-btn" onclick="calculatorInput('-')">-</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('0')">0</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-secondary calculator-btn" onclick="calculatorInput('.')">.</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-primary calculator-btn" onclick="calculatorInput('*')">×</button>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-primary calculator-btn" onclick="calculatorInput('/')">÷</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <button class="btn btn-primary calculator-btn" onclick="calculatorInput('%')">%</button>
+            </div>
+            <div class="col-6">
+                <button class="btn btn-success calculator-btn" onclick="calculateResult()">=</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        // Variables globales
+        let calculatorVisible = false;
+        let calculatorExpression = '0';
+        
+        // Inicialización cuando el DOM está listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Actualizar hora actual
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            
+            // Cargar historial desde localStorage
+            loadHistory();
+            
+            // Event listeners
+            document.getElementById('price-form').addEventListener('submit', calculatePrice);
+            document.getElementById('clear-history').addEventListener('click', clearHistory);
+            document.getElementById('export-pdf').addEventListener('click', exportToPDF);
+            document.getElementById('export-excel').addEventListener('click', exportToExcel);
+            document.getElementById('calculator-btn').addEventListener('click', toggleCalculator);
+            document.getElementById('close-calculator').addEventListener('click', toggleCalculator);
+            document.getElementById('clear-fields').addEventListener('click', clearFields);
+            
+            // Event listeners para cálculo automático
+            document.getElementById('base-cost').addEventListener('input', updateResults);
+            document.getElementById('profit-margin').addEventListener('input', updateResults);
+            
+            // Cerrar calculadora al hacer clic fuera de ella
+            document.addEventListener('click', function(event) {
+                const calculator = document.getElementById('calculator-container');
+                const calculatorBtn = document.getElementById('calculator-btn');
+                
+                if (calculatorVisible && !calculator.contains(event.target)) {
+                    if (event.target !== calculatorBtn) {
+                        toggleCalculator();
+                    }
+                }
+            });
+        });
+        
+        // Función para actualizar la hora actual
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            };
+            document.getElementById('current-time').textContent = now.toLocaleDateString('es-ES', options);
+        }
+        
+        // Función para calcular y mostrar resultados en tiempo real
+        function updateResults() {
+            const baseCost = parseFloat(document.getElementById('base-cost').value) || 0;
+            const profitMargin = parseFloat(document.getElementById('profit-margin').value) || 0;
+            
+            if (baseCost > 0 && profitMargin >= 0) {
+                const profitAmount = baseCost * (profitMargin / 100);
+                const finalPrice = baseCost + profitAmount;
+                const profitOnFinalPrice = (profitAmount / finalPrice) * 100;
+                
+                document.getElementById('suggested-price').textContent = `$${finalPrice.toFixed(2)}`;
+                document.getElementById('profit-amount').textContent = `$${profitAmount.toFixed(2)}`;
+                document.getElementById('profit-percentage').textContent = `${profitOnFinalPrice.toFixed(2)}%`;
+                
+                document.getElementById('results-container').style.display = 'block';
+            } else {
+                document.getElementById('results-container').style.display = 'none';
+            }
+        }
+        
+        // Función para limpiar los campos del formulario
+        function clearFields() {
+            document.getElementById('price-form').reset();
+            document.getElementById('results-container').style.display = 'none';
+            
+            // Mostrar animación
+            const clearBtn = document.getElementById('clear-fields');
+            clearBtn.classList.add('animate__animated', 'animate__shakeX');
+            setTimeout(() => {
+                clearBtn.classList.remove('animate__animated', 'animate__shakeX');
+            }, 1000);
+        }
+        
+        // Función para calcular el precio
+        function calculatePrice(e) {
+            e.preventDefault();
+            
+            // Obtener valores del formulario
+            const productName = document.getElementById('product-name').value;
+            const baseCost = parseFloat(document.getElementById('base-cost').value);
+            const profitMargin = parseFloat(document.getElementById('profit-margin').value);
+            
+            // Validaciones
+            if (!productName || isNaN(baseCost) || isNaN(profitMargin)) {
+                alert('Por favor completa todos los campos correctamente.');
+                return;
+            }
+            
+            // Calcular precio final y ganancia
+            const profitAmount = baseCost * (profitMargin / 100);
+            const finalPrice = baseCost + profitAmount;
+            const profitOnFinalPrice = (profitAmount / finalPrice) * 100;
+            
+            // Crear objeto con los datos
+            const calculation = {
+                id: Date.now(),
+                productName,
+                baseCost,
+                profitMargin,
+                finalPrice,
+                profitAmount,
+                profitOnFinalPrice,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Guardar en localStorage
+            saveCalculation(calculation);
+            
+            // Actualizar tabla de historial
+            addToHistoryTable(calculation);
+            
+            // Limpiar formulario
+            clearFields();
+            
+            // Mostrar animación de éxito
+            const submitBtn = document.getElementById('calculate-btn');
+            submitBtn.classList.add('animate__animated', 'animate__pulse');
+            setTimeout(() => {
+                submitBtn.classList.remove('animate__animated', 'animate__pulse');
+            }, 1000);
+        }
+        
+        // Función para guardar en localStorage
+        function saveCalculation(calculation) {
+            let history = JSON.parse(localStorage.getItem('priceCalculations')) || [];
+            history.unshift(calculation); // Agregar al inicio del array
+            localStorage.setItem('priceCalculations', JSON.stringify(history));
+        }
+        
+        // Función para cargar el historial desde localStorage
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('priceCalculations')) || [];
+            const historyBody = document.getElementById('history-body');
+            historyBody.innerHTML = '';
+            
+            history.forEach(item => {
+                addToHistoryTable(item);
+            });
+        }
+        
+        // Función para agregar una fila a la tabla de historial
+        function addToHistoryTable(item) {
+            const historyBody = document.getElementById('history-body');
+            const row = document.createElement('tr');
+            
+            // Formatear números
+            const formattedBaseCost = item.baseCost.toFixed(2);
+            const formattedFinalPrice = item.finalPrice.toFixed(2);
+            const formattedProfitAmount = item.profitAmount.toFixed(2);
+            const formattedProfitOnFinal = item.profitOnFinalPrice.toFixed(2);
+            
+            row.innerHTML = `
+                <td>${item.productName}</td>
+                <td>$${formattedBaseCost}</td>
+                <td>${item.profitMargin}%</td>
+                <td>$${formattedFinalPrice}</td>
+                <td>$${formattedProfitAmount}</td>
+                <td>${formattedProfitOnFinal}%</td>
+                <td>
+                    <button class="btn btn-sm btn-danger delete-btn" data-id="${item.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            historyBody.prepend(row);
+            
+            // Agregar evento al botón de eliminar
+            row.querySelector('.delete-btn').addEventListener('click', function() {
+                deleteCalculation(item.id);
+            });
+        }
+        
+        // Función para eliminar un cálculo
+        function deleteCalculation(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este cálculo?')) {
+                let history = JSON.parse(localStorage.getItem('priceCalculations')) || [];
+                history = history.filter(item => item.id !== id);
+                localStorage.setItem('priceCalculations', JSON.stringify(history));
+                loadHistory();
+            }
+        }
+        
+        // Función para limpiar todo el historial
+        function clearHistory() {
+            if (confirm('¿Estás seguro de que deseas eliminar todo el historial? Esta acción no se puede deshacer.')) {
+                localStorage.removeItem('priceCalculations');
+                document.getElementById('history-body').innerHTML = '';
+                
+                // Mostrar animación
+                const clearBtn = document.getElementById('clear-history');
+                clearBtn.classList.add('animate__animated', 'animate__shakeX');
+                setTimeout(() => {
+                    clearBtn.classList.remove('animate__animated', 'animate__shakeX');
+                }, 1000);
+            }
+        }
+        
+        // Función para exportar a PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título
+            doc.setFontSize(18);
+            doc.text('Historial de Cálculos de Precios', 105, 15, { align: 'center' });
+            
+            // Fecha
+            const now = new Date();
+            doc.setFontSize(10);
+            doc.text(`Generado el: ${now.toLocaleDateString()} a las ${now.toLocaleTimeString()}`, 105, 22, { align: 'center' });
+            
+            // Tabla
+            doc.autoTable({
+                head: [['Concepto', 'Costo Base', 'Margen (%)', 'Precio Final', 'Ganancia', '% sobre Precio']],
+                body: getHistoryDataForExport(),
+                startY: 30,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [0, 188, 212],
+                    textColor: [0, 0, 0]
+                },
+                styles: {
+                    cellPadding: 3,
+                    fontSize: 9,
+                    valign: 'middle'
+                },
+                columnStyles: {
+                    0: { cellWidth: 'auto' },
+                    1: { cellWidth: 'auto' },
+                    2: { cellWidth: 'auto' },
+                    3: { cellWidth: 'auto' },
+                    4: { cellWidth: 'auto' },
+                    5: { cellWidth: 'auto' }
+                }
+            });
+            
+            // Guardar PDF
+            doc.save(`Calculos_Precios_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}.pdf`);
+        }
+        
+        // Función para exportar a Excel
+        function exportToExcel() {
+            const data = getHistoryDataForExport();
+            const ws = XLSX.utils.aoa_to_sheet([
+                ['Historial de Cálculos de Precios'],
+                [`Generado el: ${new Date().toLocaleDateString()}`],
+                [],
+                ['Concepto', 'Costo Base', 'Margen (%)', 'Precio Final', 'Ganancia', '% sobre Precio'],
+                ...data
+            ]);
+            
+            // Combinar celdas para el título
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 5 } }
+            ];
+            
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Historial");
+            
+            // Guardar archivo
+            const now = new Date();
+            XLSX.writeFile(wb, `Calculos_Precios_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}.xlsx`);
+        }
+        
+        // Función auxiliar para obtener datos formateados para exportación
+        function getHistoryDataForExport() {
+            const history = JSON.parse(localStorage.getItem('priceCalculations')) || [];
+            return history.map(item => [
+                item.productName,
+                `$${item.baseCost.toFixed(2)}`,
+                `${item.profitMargin}%`,
+                `$${item.finalPrice.toFixed(2)}`,
+                `$${item.profitAmount.toFixed(2)}`,
+                `${item.profitOnFinalPrice.toFixed(2)}%`
+            ]);
+        }
+        
+        // Funciones para la calculadora manual
+        function toggleCalculator() {
+            calculatorVisible = !calculatorVisible;
+            const calculator = document.getElementById('calculator-container');
+            
+            if (calculatorVisible) {
+                calculator.style.display = 'block';
+                calculator.classList.add('animate__animated', 'animate__fadeIn');
+            } else {
+                calculator.classList.add('animate__animated', 'animate__fadeOut');
+                setTimeout(() => {
+                    calculator.style.display = 'none';
+                    calculator.classList.remove('animate__animated', 'animate__fadeOut');
+                }, 500);
+            }
+        }
+        
+        function calculatorInput(value) {
+            if (calculatorExpression === '0' && value !== '.') {
+                calculatorExpression = value;
+            } else {
+                calculatorExpression += value;
+            }
+            updateCalculatorDisplay();
+        }
+        
+        function clearCalculator() {
+            calculatorExpression = '0';
+            updateCalculatorDisplay();
+        }
+        
+        function calculateResult() {
+            try {
+                // Reemplazar × y ÷ por * y / para evaluación
+                let expression = calculatorExpression.replace(/×/g, '*').replace(/÷/g, '/');
+                
+                // Manejar porcentajes
+                expression = expression.replace(/(\d+(\.\d+)?)%/g, function(match, p1) {
+                    return `(${p1}/100)`;
+                });
+                
+                const result = eval(expression);
+                calculatorExpression = result.toString();
+                updateCalculatorDisplay();
+            } catch (error) {
+                calculatorExpression = 'Error';
+                updateCalculatorDisplay();
+                setTimeout(clearCalculator, 1500);
+            }
+        }
+        
+        function updateCalculatorDisplay() {
+            document.getElementById('calculator-display').textContent = calculatorExpression;
+        }
+    </script>
+</body>
+</html>
